@@ -1,42 +1,45 @@
 # Milestone 0 — Verification checklist
 
-**Status:** Code and build configuration prepared. Compilation, simulator checks and hardware tests are **not yet verified**. Do not mark Milestone 0 complete until this checklist is checked with recorded results.
+**Status:** Desktop build, emulator screenshots, and reported emulator playtest passed on 2026-11-13. Physical Arduboy test is optional and not reported. Memory figures recorded from the tester's `pio run -t size` output.
 
 ## Toolchain
 
-- [ ] Install PlatformIO Core / IDE extension and run `pio run` from repository root.
-- [ ] Confirm `.pio/build/arduboy/firmware.hex` exists and is nonempty.
-- [ ] Run `pio run -t size`; record actual flash/RAM use below.
-- [ ] Load generated HEX into an Arduboy simulator; ensure all strings fit the 128x64 display.
-- [ ] Flash and test on physical standard Arduboy (if available).
+- [x] Run `pio run` from repository root (user confirmed successful build).
+- [x] Confirm `.pio/build/arduboy/firmware.hex` exists (user located it).
+- [x] Run `pio run -t size`; record actual flash/RAM below.
+- [x] Load generated HEX into Arduboy emulator (two screenshots attached to PR).
+- [ ] Flash and test on physical standard Arduboy (optional; not yet reported).
 
 ## Manual interaction
 
-- [ ] Initial boot displays ROGUE GRAVEYARD and A: ENTER.
-- [ ] One press of **A** reaches THE GRAVEYARD placeholder.
-- [ ] One press of **B** returns to the title; repeated visits do not change state unexpectedly.
-- [ ] Held A/B do not repeatedly transition because `justPressed` is edge-triggered.
-- [ ] D-pad does not move anything in Milestone 0 (intentional; movement is Milestone 1).
-- [ ] Reset/boot returns to title. No EEPROM writes or FX save writes.
+- [x] Initial title and placeholder screens visibly render in emulator screenshots.
+- [x] Tester reports emulator playthrough with no issues.
+- [ ] Individually confirm A, B, button hold edge handling, and reset behavior on hardware or in a detailed follow-up report (no separate per-control results supplied).
+- [ ] D-pad inactivity verified separately (intended until Milestone 1).
+- [x] No EEPROM or FX writes in Milestone 0 source (code inspection).
 
 ## Memory budget (standard Arduboy / ATmega32U4)
 
-| Resource | Hardware capacity | Milestone 0 budget / target | Actual |
+| Resource | Hardware capacity | Milestone 0 target | Measured |
 | --- | --- | --- | --- |
-| SRAM | 2,560 B | **<= 2,048 B used**, reserve >= 512 B for stack/headroom | Pending compilation |
-| Flash | 32,768 B physical (bootloader reserves a portion) | **<= 26,000 B image target** for early development | Pending compilation |
-| EEPROM | 1,024 B | 0 B written | No write calls |
-| Display | 128x64 pixels, 1 bit/pixel | Arduboy2 framebuffer approximately 1,024 B SRAM | Expected; verify build |
+| SRAM | 2,560 B | <= 2,048 B used; >= 512 B remaining | **1,202 B (47.0%); 1,358 B free** |
+| Flash | 28 KB usable according to PlatformIO | <= 26,000 B image | **7,004 B (21.4% of 32,768 B; ~24.4% of 28 KB usable); 21,668 B usable space left** |
+| EEPROM | 1,024 B | 0 B written | No write calls in source; no runtime persistence test |
+| Display | 128x64 pixels | Arduboy2 framebuffer ~1,024 B SRAM | Included in total static RAM use |
 
-> The flash budget is a conservative development target, not a measured usable-capacity claim. Toolchain and library versions affect memory usage; verify actual sizes with `pio run -t size`. The Arduboy2 framebuffer itself accounts for ~1KB SRAM, so keep future grave structs small.
+Note: PlatformIO's AVR Memory Usage output reports Program: 7,004 bytes (21.4% Full) and Data: 1,202 bytes (47.0% Full). The Program percent shown uses 32 KB physical flash while the configured board advertises 28 KB usable application flash. The static SRAM number does not measure maximum stack depth.
 
 ## Tester report
 
-- Date/device:
-- PlatformIO / toolchain:
-- Firmware size:
-- SRAM used:
-- Simulator result:
-- Hardware result:
-- Defects / screenshots:
-- Outcome: Pending
+- Date: November 13, 2026.
+- Environment: macOS desktop; Arduboy emulator (physical device untested).
+- Platform: Atmel AVR 5.3.0, Arduino AVR framework 5.4.0, toolchain 7.3.0, Arduboy2 6.0.0.
+- Target: ATmega32U4 16 MHz, 2.50 KB RAM, 28 KB flash.
+- Firmware program size: **7,004 bytes**.
+- Static data/SRAM: **1,202 bytes**.
+- Simulator: title and placeholder visible, no issues reported.
+- Hardware: Not tested.
+- Evidence: [PR #1 test comment and screenshots](https://github.com/steelwater/rogue-graveyard/pull/1#issuecomment-6852191979).
+- Outcome: **Milestone 0 build, emulator smoke test and memory-budget checks passed.** Physical testing and granular control checklist remain optional follow-up.
+
+No further features from Milestone 1 or later are included here.
